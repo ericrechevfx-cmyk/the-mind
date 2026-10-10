@@ -69,21 +69,21 @@ details b{color:var(--fg);font-weight:400}
 .chips{display:flex;gap:4px 16px;flex-wrap:wrap;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .chip b{color:var(--fg);font-weight:400}
 .chip.me{color:var(--fg)}
-.table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:0}
-.bigcard{width:min(52vw,210px,24vh);aspect-ratio:5/7;display:grid;place-items:center;position:relative;
-  background:linear-gradient(160deg,var(--card),var(--card2));color:var(--cardfg);border:1px solid #5b49c9;
-  box-shadow:0 24px 50px -20px #000;font:400 clamp(80px,28vw,132px)/1 var(--display);font-variant-numeric:tabular-nums}
-.bigcard.empty{background:transparent;border:1px dashed var(--line);box-shadow:none}
-.bigcard .who{position:absolute;bottom:10px;left:0;right:0;text-align:center;font:400 11px var(--body);letter-spacing:.15em;text-transform:uppercase;opacity:.8}
-.bigcard.bad{background:var(--acc);border-color:var(--acc)}
+.table{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:0}
 .pop{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 .shake{animation:shake .4s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.pile{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:100%;max-height:28vh;overflow-y:auto}
-.pile i{font-style:normal;width:30px;height:42px;display:grid;place-items:center;font:400 17px var(--display);border:1px solid var(--line);font-variant-numeric:tabular-nums}
-.pile i.last{background:var(--card);color:var(--cardfg);border-color:#5b49c9}
-.pile i.x{border-color:var(--acc);color:var(--acc);text-decoration:line-through}
+.pile{flex:1 1 0;min-height:0;width:100%;overflow:hidden;display:flex;flex-wrap:wrap;gap:var(--gap,8px);justify-content:center;align-content:center}
+.pile i{font-style:normal;width:var(--cw,120px);aspect-ratio:5/7;display:grid;place-items:center;position:relative;
+  background:linear-gradient(160deg,var(--card),var(--card2));color:var(--cardfg);border:1px solid #3d2f99;
+  font:400 calc(var(--cw,120px)*.55)/1 var(--display);font-variant-numeric:tabular-nums}
+.pile i.last{border-color:#a08cff;box-shadow:0 0 0 1px #a08cff,0 16px 40px -16px #000}
+.pile i.bad{background:var(--acc);border-color:var(--acc);box-shadow:none}
+.pile i.x{background:transparent;border-color:var(--acc);color:var(--acc);text-decoration:line-through}
+.pile i small{position:absolute;bottom:6%;left:0;right:0;text-align:center;font:400 10px var(--body);letter-spacing:.1em;text-transform:uppercase;opacity:.75;text-decoration:none}
+.pile.tiny small{display:none}
+.pile .slot{width:var(--cw,120px);aspect-ratio:5/7;border:1px dashed var(--line)}
 .banner{text-align:center;min-height:3em;margin:0;font-size:13px;max-width:36ch;color:var(--muted)}
 .banner.bad{color:var(--acc)}
 .flash{position:fixed;inset:0;pointer-events:none;background:var(--acc);opacity:0}
@@ -96,9 +96,9 @@ details b{color:var(--fg);font-weight:400}
 .mini.low{background:var(--card);color:var(--cardfg);border-color:#5b49c9}
 .hand .none{color:var(--muted);align-self:center;font-size:12px;letter-spacing:.15em;text-transform:uppercase}
 .playbtn{background:linear-gradient(160deg,var(--card),var(--card2));color:var(--cardfg);font:400 26px var(--display);letter-spacing:.04em;padding:20px;width:100%;border:1px solid #5b49c9}
-.sheet{position:fixed;inset:0;background:#06071acc;display:flex;align-items:flex-end;z-index:6}
-.sheet .box{width:100%;max-width:480px;margin:0 auto;background:#0d0f2e;border-top:1px solid #5b49c9;padding:24px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;animation:up .2s ease-out}
-@keyframes up{from{transform:translateY(100%)}}
+.sheet{position:fixed;inset:0;background:#06071acc;display:grid;place-items:center;padding:16px;z-index:6}
+.sheet .box{width:100%;max-width:400px;background:#0d0f2e;border:1px solid #5b49c9;padding:24px 16px 16px;display:flex;flex-direction:column;gap:20px;text-align:center;animation:in .18s ease-out;box-shadow:0 30px 80px -20px #000}
+@keyframes in{from{transform:scale(.92);opacity:0}}
 .sheet .q{font:400 40px/1 var(--display);text-transform:uppercase;margin:0}
 
 .overlay{position:fixed;inset:0;background:#06071af2;display:grid;place-items:center;padding:16px;z-index:5}
@@ -208,6 +208,7 @@ const Game = {
         S.players.forEach(o=>{ o.hand.filter(c=>c<card).forEach(c=>lower.push({card:c, by:o.id})); });
         S.pile.push({card, by:pid});
         if(!lower.length){ this.event({kind:"play", card, by:pid}); this.finishLevelIfDone(); break; }
+        S.pile[S.pile.length-1].bad = true;
         lower.sort((a,b)=>a.card-b.card);
         if(S.mode==="sudden"){
           S.phase="gameOver"; this.event({kind:"mistake", card, by:pid, lower, over:true}); break;
@@ -467,7 +468,6 @@ function renderGame(prev){
   const newEv = v.ev.seq!==lastSeq; lastSeq=v.ev.seq;
   const et = eventText(v.ev);
   const canPlay = v.phase==="playing" && v.hand.length>0;
-  const showCard = v.ev.kind==="mistake" ? {card:v.ev.card, by:v.ev.by, bad:true} : lastPlayed;
 
   app.innerHTML = `
   <div class="game">
@@ -482,9 +482,7 @@ function renderGame(prev){
       <span class="chip ${p.id===myPid?"me":""} ${p.connected?"":"off"}">${esc(p.name)} <b>${p.count}</b>${v.phase==="ready"&&p.ready?" ✓":""}</span>`).join("")}
     </div>
     <section class="table">
-      ${showCard ? `<div class="bigcard ${showCard.bad?"bad":""} ${newEv&&(v.ev.kind==="play"||v.ev.kind==="mistake")?(showCard.bad?"pop shake":"pop"):""}">${showCard.card}<span class="who">${esc(nameOf(showCard.by))}</span></div>`
-        : `<div class="bigcard empty"></div>`}
-      ${v.pile.length ? `<div class="pile">${v.pile.map((x,i)=>`<i class="${x.x?"x":""} ${x===lastPlayed?"last":""}" title="${esc(nameOf(x.by))}">${x.card}</i>`).join("")}</div>` : ""}
+      <div class="pile" id="pile">${v.pile.length ? v.pile.map(x=>`<i class="${x.x?"x":""} ${x.bad?"bad":""} ${x===lastPlayed?"last":""} ${x===lastPlayed&&newEv&&(v.ev.kind==="play"||v.ev.kind==="mistake")?(x.bad?"pop shake":"pop"):""}">${x.card}<small>${esc(nameOf(x.by))}</small></i>`).join("") : `<div class="slot"></div>`}</div>
       <p class="banner ${et.c}" aria-live="polite">${et.t}</p>
     </section>
     <section class="me-area">
@@ -510,6 +508,7 @@ function renderGame(prev){
     ov.querySelector("#no").onclick=()=>ov.remove(); ov.querySelector("#yes").onclick=()=>{ov.remove();leave();};
     const lob=ov.querySelector("#lob"); if(lob) lob.onclick=()=>{ov.remove(); net.send({t:"lobby"});}; };
   bindOverlay();
+  fitPile();
 
   if(newEv && prev){
     if(v.ev.kind==="mistake"){ const f=$("#flash"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); buzz([120,60,120]); }
@@ -517,6 +516,18 @@ function renderGame(prev){
     else if(v.ev.kind==="levelWon"||v.ev.kind==="victory") buzz([40,40,40]);
   }
 }
+
+// Busca el tamaño de carta más grande con el que caben todas las soltadas en la mesa.
+function fitPile(){
+  const el=$("#pile"); if(!el) return;
+  const n=Math.max(1, el.children.length), W=el.clientWidth, H=el.clientHeight, g=n>16?4:8;
+  let best=0;
+  for(let c=1;c<=n;c++){ const r=Math.ceil(n/c); best=Math.max(best, Math.min((W-(c-1)*g)/c, (H-(r-1)*g)/r*5/7)); }
+  best=Math.max(16, Math.min(150, Math.floor(best)));
+  el.style.setProperty("--cw", best+"px"); el.style.setProperty("--gap", g+"px");
+  el.classList.toggle("tiny", best<56);
+}
+addEventListener("resize", fitPile);
 
 function overlay(v, me){
   const host=isHost();
