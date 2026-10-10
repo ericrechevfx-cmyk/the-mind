@@ -15,7 +15,7 @@ También sirve GitHub Pages o cualquier hosting estático. Tiene que ser `https`
 1. Uno pulsa **Crear partida**: le sale un código de 4 letras. Ese móvil es el anfitrión.
 2. Los demás abren el enlace, ponen su nombre y el código (o abren el enlace de invitación, que ya trae el código).
 3. El anfitrión elige el modo (con vidas o muerte súbita) y pulsa **Empezar**.
-4. Cada nivel, todos ven sus cartas y pulsan **Listo**. Después, quien crea que le toca pulsa **Soltar carta** dos veces (el segundo toque confirma, para evitar soltar sin querer).
+4. Cada nivel, todos ven sus cartas y pulsan **Listo**. Después, quien crea que le toca pulsa **Soltar** dos veces (el segundo toque confirma, para evitar soltar sin querer).
 
 ## Cosas a tener en cuenta
 

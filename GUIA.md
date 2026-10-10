@@ -40,18 +40,18 @@ El link `raw.githack.com/...` es un servicio gratuito de pruebas. Muchas veces v
 
 ## 3. Cómo se juega con la app
 
-1. **Una persona crea la partida.** Abre el link, pone su nombre y pulsa **Crear partida nueva**. Le sale un **código de 4 letras**, por ejemplo `BZPK`. Esa persona es el **anfitrión**.
+1. **Una persona crea la partida.** Abre el link, pone su nombre y pulsa **Crear partida**. Le sale un **código de 4 letras**, por ejemplo `BZPK`. Esa persona es el **anfitrión**.
 2. **Los demás entran.** Abren el mismo link, ponen su nombre y el código, y pulsan **Entrar**.
-   - El anfitrión también puede pulsar **Copiar enlace de invitación** y mandarlo por WhatsApp. Ese enlace ya lleva el código.
-3. **El anfitrión elige el modo** y pulsa **Empezar partida**:
+   - El anfitrión también puede pulsar **Copiar enlace** y mandarlo por WhatsApp. Ese enlace ya lleva el código.
+3. **El anfitrión elige el modo** y pulsa **Empezar**:
    - **Con vidas (oficial):** empezáis con tantas vidas como jugadores y 1 estrella.
    - **Muerte súbita:** un fallo y se acaba.
 4. **Cada nivel:** todos miran sus cartas y pulsan **Listo**. La ronda empieza cuando todos están listos.
-5. **Soltar carta:** cuando creas que te toca, pulsa **Soltar carta** y luego otra vez para confirmar. Siempre se suelta tu carta más baja.
+5. **Soltar:** cuando creas que te toca, pulsa **Soltar** y luego otra vez para confirmar. Siempre se suelta tu carta más baja.
 6. La carta aparece en grande en todos los móviles:
    - Si estaba en orden, seguís jugando.
    - Si alguien tenía una más baja, sale **¡Fallo!** con quién tenía qué carta, y perdéis una vida.
-7. Cuando no quedan cartas, **nivel superado**. Cualquiera pulsa **Repartir nivel X** para seguir.
+7. Cuando no quedan cartas, **nivel superado**. Cualquiera pulsa **Nivel X →** para seguir.
 
 ### Reglas del juego
 
@@ -62,7 +62,7 @@ El link `raw.githack.com/...` es un servicio gratuito de pruebas. Muchas veces v
 | Niveles para ganar | 2 jugadores: 12 · 3 jugadores: 10 · 4 o más: 8 |
 | Comunicación | Prohibido decir números. Vale decir cosas como «voy en pañales» o «el mío está jubilado» |
 | Fallo | Perdéis 1 vida y se descartan todas las cartas más bajas que la soltada |
-| Estrella ★ | Si **todos** pulsáis **Pedir estrella**, cada uno descarta su carta más baja |
+| Estrella ★ | Si **todos** pulsáis **★ Estrella**, cada uno descarta su carta más baja |
 | Premios | Al superar los niveles 2, 5 y 8 ganáis una ★. Al superar los niveles 3, 6 y 9, una ♥ |
 
 ---
