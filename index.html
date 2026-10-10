@@ -76,9 +76,10 @@ details b{color:var(--fg);font-weight:400}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .pile{flex:1 1 0;min-height:0;width:100%;overflow:hidden;display:flex;flex-wrap:wrap;gap:var(--gap,8px);justify-content:center;align-content:center}
 .pile i{font-style:normal;width:var(--cw,120px);aspect-ratio:5/7;display:grid;place-items:center;position:relative;
-  background:linear-gradient(160deg,var(--card),var(--card2));color:var(--cardfg);border:1px solid #3d2f99;
+  background:linear-gradient(160deg,var(--c1,var(--card)),var(--c2,var(--card2)));color:var(--cardfg);border:1px solid #ffffff1f;
   font:400 calc(var(--cw,120px)*.55)/1 var(--display);font-variant-numeric:tabular-nums}
-.pile i.last{border-color:#a08cff;box-shadow:0 0 0 1px #a08cff,0 16px 40px -16px #000}
+.pile i.last{border-color:#fff;box-shadow:0 0 0 1px #fff,0 16px 40px -16px #000}
+.sw{display:inline-block;width:8px;height:8px;margin-right:6px;vertical-align:1px}
 .pile i.bad{background:var(--acc);border-color:var(--acc);box-shadow:none}
 .pile i.x{background:transparent;border-color:var(--acc);color:var(--acc);text-decoration:line-through}
 .pile i small{position:absolute;bottom:6%;left:0;right:0;text-align:center;font:400 10px var(--body);letter-spacing:.1em;text-transform:uppercase;opacity:.75;text-decoration:none}
@@ -152,6 +153,10 @@ function peerOpts(){
 function newCode(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ"; let c=""; for(let i=0;i<4;i++) c+=A[Math.floor(Math.random()*A.length)]; return c; }
 const LIFE_LEVELS = [3,6,9];
 const maxLevelFor = n => n<=2 ? 12 : n===3 ? 10 : 8;
+// Un tono por jugador (por orden de llegada), todos dentro de azules y morados: [arriba, abajo] del degradado.
+const TONES = [["#3a6be0","#1d337f"],["#4a2a96","#241250"],["#8040c0","#3e1a66"],["#23378f","#111a4a"],
+  ["#5e55e0","#2b2680"],["#3d86c6","#1b3d6b"],["#9a3fa8","#46184f"],["#7487e8","#34408a"]];
+const toneOf = id => { const i = view ? view.players.findIndex(p=>p.id===id) : 0; return TONES[Math.max(0,i)%TONES.length]; };
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 let wakeLock=null;
 async function keepAwake(){ try{ if(!wakeLock && navigator.wakeLock){ wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release",()=>wakeLock=null);} }catch{} }
@@ -457,7 +462,6 @@ function renderLobby(){
 function eventText(ev){
   switch(ev.kind){
     case "mistake": return {t:"Fallo. "+ev.lower.map(x=>`${esc(nameOf(x.by))} tenía el ${x.card}`).join(", ")+".", c:"bad"};
-    case "go": return {t:"Silencio.", c:""};
     default: return {t:"", c:""};
   }
 }
@@ -479,10 +483,10 @@ function renderGame(prev){
       </div>
     </div>
     <div class="chips">${v.players.map(p=>`
-      <span class="chip ${p.id===myPid?"me":""} ${p.connected?"":"off"}">${esc(p.name)} <b>${p.count}</b>${v.phase==="ready"&&p.ready?" ✓":""}</span>`).join("")}
+      <span class="chip ${p.id===myPid?"me":""} ${p.connected?"":"off"}"><span class="sw" style="background:${toneOf(p.id)[0]}"></span>${esc(p.name)} <b>${p.count}</b>${v.phase==="ready"&&p.ready?" ✓":""}</span>`).join("")}
     </div>
     <section class="table">
-      <div class="pile" id="pile">${v.pile.length ? v.pile.map(x=>`<i class="${x.x?"x":""} ${x.bad?"bad":""} ${x===lastPlayed?"last":""} ${x===lastPlayed&&newEv&&(v.ev.kind==="play"||v.ev.kind==="mistake")?(x.bad?"pop shake":"pop"):""}">${x.card}<small>${esc(nameOf(x.by))}</small></i>`).join("") : `<div class="slot"></div>`}</div>
+      <div class="pile" id="pile">${v.pile.length ? v.pile.map(x=>`<i class="${x.x?"x":""} ${x.bad?"bad":""} ${x===lastPlayed?"last":""} ${x===lastPlayed&&newEv&&(v.ev.kind==="play"||v.ev.kind==="mistake")?(x.bad?"pop shake":"pop"):""}" style="--c1:${toneOf(x.by)[0]};--c2:${toneOf(x.by)[1]}">${x.card}<small>${esc(nameOf(x.by))}</small></i>`).join("") : `<div class="slot"></div>`}</div>
       <p class="banner ${et.c}" aria-live="polite">${et.t}</p>
     </section>
     <section class="me-area">
