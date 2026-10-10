@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
 <meta name="theme-color" content="#120f24">
 <title>The Mind</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://0.peerjs.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js" crossorigin>
+<!-- Fuentes sin bloquear el primer pintado: se ve con la fuente del sistema y cambia al cargar. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" media="print" onload="this.media='all'">
 <style>
 /* Una sola pantalla oscura tipo "mesa de noche": la mesa arriba, tu mano abajo. */
 :root{
@@ -105,7 +110,6 @@ details li{margin-bottom:6px}
 .status{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);background:var(--bad);color:#fff;padding:6px 12px;border-radius:999px;font-size:13px;z-index:9}
 @media (prefers-reduced-motion:reduce){.pop,.shake,.flash.on{animation:none}}
 </style>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -125,6 +129,20 @@ const store = mkStore("sessionStorage"), prefs = mkStore("localStorage");
 const rid = () => Math.random().toString(36).slice(2,10);
 const myPid = store.get("pid") || (()=>{ const p = rid(); store.set("pid",p); return p; })();
 const PREFIX = "themind-es-";
+// PeerJS se carga en segundo plano para que la portada salga al instante.
+const peerLib = new Promise((res,rej)=>{
+  const s=document.createElement("script"); s.crossOrigin="anonymous";
+  s.src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"; s.onload=res; s.onerror=rej;
+  document.head.appendChild(s);
+});
+peerLib.catch(()=>{});
+// Si aún no ha llegado la librería, espera y vuelve a llamar a f; si falla, avisa.
+function needPeer(f){
+  if(typeof Peer!=="undefined") return true;
+  net.setStatus("Conectando…");
+  peerLib.then(f, ()=>{ net.stop(); store.del("session"); net.setStatus(""); view=null; showHomeError("No se pudo cargar el juego. Revisa la conexión a internet y recarga la página."); });
+  return false;
+}
 const qs = new URLSearchParams(location.search);
 // ?peerhost=localhost:9000 permite usar un servidor PeerJS propio (pruebas).
 function peerOpts(){
@@ -261,6 +279,7 @@ const net = {
     net.broadcast();
   },
   openHostPeer(){
+    if(!needPeer(()=>this.role==="host"&&this.openHostPeer())) return;
     if(this.peer){ try{this.peer.destroy();}catch{} }
     const peer = this.peer = new Peer(PREFIX+this.code, peerOpts());
     this.setStatus("Conectando…");
@@ -305,6 +324,7 @@ const net = {
   join(code, name){
     this.role="guest"; this.code=code; this.name=name;
     store.set("session",{role:"guest", code, name});
+    if(!needPeer(()=>this.role==="guest"&&this.join(code,name))) return;
     if(this.peer){ try{this.peer.destroy();}catch{} }
     const peer = this.peer = new Peer(peerOpts());
     this.setStatus("Conectando…");
@@ -577,7 +597,6 @@ function bindOverlay(){
 
 /* ============ arranque: recupera la sesión si se recargó la página ============ */
 (function boot(){
-  if(typeof Peer==="undefined"){ app.innerHTML=`<main class="wrap"><h2>No se pudo cargar el juego</h2><p class="lede">Revisa la conexión a internet y recarga la página.</p></main>`; return; }
   const s=store.get("session");
   if(s && s.role==="host"){ const st=store.get("hostState"); if(st && st.code===s.code){ st.players.forEach(p=>{ if(p.id!==myPid) p.connected=false; }); net.host(s.code, s.name, st); return; } }
   if(s && s.role==="guest"){ const h=location.hash.slice(1).toUpperCase(); if(!h || h===s.code){ net.join(s.code, s.name); renderWaiting(s.code); return; } }
