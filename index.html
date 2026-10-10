@@ -68,7 +68,7 @@ details b{color:var(--fg);font-weight:400}
 .chip b{color:var(--fg);font-weight:400}
 .chip.me{color:var(--fg)}
 .table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:0}
-.bigcard{width:min(52vw,210px);aspect-ratio:5/7;display:grid;place-items:center;position:relative;
+.bigcard{width:min(52vw,210px,24vh);aspect-ratio:5/7;display:grid;place-items:center;position:relative;
   background:var(--fg);color:#000;font:400 clamp(80px,28vw,132px)/1 var(--display);font-variant-numeric:tabular-nums}
 .bigcard.empty{background:transparent;border:1px dashed var(--line)}
 .bigcard .who{position:absolute;bottom:10px;left:0;right:0;text-align:center;font:400 11px var(--body);letter-spacing:.15em;text-transform:uppercase}
@@ -77,6 +77,11 @@ details b{color:var(--fg);font-weight:400}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 .shake{animation:shake .4s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pile{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:100%;max-height:28vh;overflow-y:auto}
+.pile i{font-style:normal;width:30px;height:42px;display:grid;place-items:center;font:400 17px var(--display);border:1px solid #444;font-variant-numeric:tabular-nums}
+.pile i.last{background:var(--fg);color:#000;border-color:var(--fg)}
+.pile i.x{border-color:var(--acc);color:var(--acc);text-decoration:line-through}
+.pile i.s{border-color:var(--line);color:var(--muted);text-decoration:none}
 .banner{text-align:center;min-height:3em;margin:0;font-size:13px;max-width:36ch;color:var(--muted)}
 .banner.bad{color:var(--acc)} .banner.ok{color:var(--fg)}
 .flash{position:fixed;inset:0;pointer-events:none;background:var(--acc);opacity:0}
@@ -220,7 +225,7 @@ const Game = {
         if(holders.every(x=>x.star)){
           S.stars--;
           const out = holders.map(x=>({card:x.hand.shift(), by:x.id}));
-          out.forEach(o=>S.pile.push({card:o.card, by:o.by, x:true}));
+          out.forEach(o=>S.pile.push({card:o.card, by:o.by, x:true, s:true}));
           S.players.forEach(x=>x.star=false);
           this.event({kind:"star", out});
           this.finishLevelIfDone();
@@ -494,6 +499,7 @@ function renderGame(prev){
     <section class="table">
       ${showCard ? `<div class="bigcard ${showCard.bad?"bad":""} ${newEv&&(v.ev.kind==="play"||v.ev.kind==="mistake")?(showCard.bad?"pop shake":"pop"):""}">${showCard.card}<span class="who">${esc(nameOf(showCard.by))}</span></div>`
         : `<div class="bigcard empty"></div>`}
+      ${v.pile.length ? `<div class="pile">${v.pile.map((x,i)=>`<i class="${x.s?"x s":x.x?"x":""} ${x===lastPlayed?"last":""}" title="${esc(nameOf(x.by))}">${x.card}</i>`).join("")}</div>` : ""}
       <p class="banner ${et.c}" aria-live="polite">${et.t}</p>
     </section>
     <section class="me-area">
